@@ -1,0 +1,63 @@
+<div class="auth-split d-flex flex-column flex-md-row" role="main" aria-label="Page d'authentification">
+
+  <!-- Gauche : Image/Illustration (Optional, can be hidden on small screens) -->
+  <div class="auth-image d-none d-md-flex">
+    <div class="overlay">
+      <img src="assets/vt.png" alt="">
+    </div>
+  </div>
+
+  <!-- Droite : Formulaire de connexion -->
+  <div class="auth-form">
+    <div class="auth-card shadow-lg">
+
+      <h1 class="mb-2 fw-bold">Bienvenue</h1>
+      <p class="mb-4 text-muted">Connectez-vous à votre espace administrateur.</p>
+
+      <form [formGroup]="authForm" (ngSubmit)="onSubmit()" class="mb-3">
+
+        <!-- Email Input -->
+        <div class="input-group">
+          <input
+            type="email"
+            formControlName="email"
+            placeholder="Email"
+            aria-label="Email"
+            [class.is-invalid]="authForm.get('email')?.invalid && authForm.get('email')?.touched"
+          />
+        </div>
+
+        <!-- Password Input -->
+        <div class="input-group">
+          <input
+            [type]="hidePassword ? 'password' : 'text'"
+            formControlName="password"
+            placeholder="Mot de passe"
+            autocomplete="current-password"
+            aria-label="Mot de passe"
+            [class.is-invalid]="authForm.get('password')?.invalid && authForm.get('password')?.touched"
+          />
+          <span class="password-toggle" (click)="togglePasswordVisibility()">
+            <i class="fa" [ngClass]="hidePassword ? 'fa-eye' : 'fa-eye-slash'"></i>
+          </span>
+        </div>
+
+        <!-- Message d'erreur -->
+        <div *ngIf="errorMessage" class="alert alert-danger mb-3" role="alert">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="auth-button"
+          [disabled]="isSubmissionInProgress || authForm.invalid"
+        >
+          {{ isSubmissionInProgress ? 'Connexion...' : 'Se connecter' }}
+        </button>
+      </form>
+
+
+    </div>
+  </div>
+</div>

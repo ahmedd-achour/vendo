@@ -1,0 +1,363 @@
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <i class="fa-solid fa-shield-halved logo-icon"></i>
+      <h2>Vendo Tunisie</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <button [class.active]="activeTab === 'dashboard'" (click)="setTab('dashboard')">
+        <i class="fa-solid fa-chart-line"></i> Dashboard
+      </button>
+      <button [class.active]="activeTab === 'users'" (click)="setTab('users')">
+        <i class="fa-solid fa-users"></i> Utilisateurs
+      </button>
+      <button [class.active]="activeTab === 'products'" (click)="setTab('products')">
+        <i class="fa-solid fa-box"></i> Produits
+      </button>
+      <button [class.active]="activeTab === 'reports'" (click)="setTab('reports')">
+        <i class="fa-solid fa-triangle-exclamation"></i> Signalements
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" (click)="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <header class="top-header">
+      <div class="breadcrumb">
+        <span>Administration</span> / <span class="current">{{ activeTab | titlecase }}</span>
+      </div>
+
+    </header>
+
+    <div class="tab-content">
+      <!-- Dashboard Tab -->
+      @if (activeTab === 'dashboard') {
+      <section class="dashboard-section animate-fade">
+  <h3 class="section-title">Vue d'ensemble</h3>
+
+  @if (stats$ | async; as stats) {
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+        <div class="stat-info">
+          <h4>Utilisateurs</h4>
+          <p>{{ stats.totalUsers }}</p>
+        </div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon"><i class="fa-solid fa-box"></i></div>
+        <div class="stat-info">
+          <h4>Produits</h4>
+          <p>{{ stats.totalProducts }}</p>
+        </div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon"><i class="fa-solid fa-user-slash"></i></div>
+        <div class="stat-info">
+          <h4>Bannis</h4>
+          <p>{{ stats.bannedUsers }}</p>
+        </div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon"><i class="fa-solid fa-flag"></i></div>
+        <div class="stat-info">
+          <h4>Signalements</h4>
+          <p>{{ stats.totalSignals }}</p>
+        </div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon"><i class="fa-solid fa-heart"></i></div>
+        <div class="stat-info">
+          <h4>Vendus</h4>
+          <p>{{ stats.soldProducts }}</p>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Unified 2x2 Charts Grid View -->
+  <div class="charts-grid mt-4">
+
+    <!-- Top Left: Distribution des Catégories -->
+    <div class="chart-container">
+      <h4>Distribution des Catégories</h4>
+      <div class="chart-wrapper">
+        <canvas baseChart
+          [data]="categoryChartData"
+          [options]="categoryChartOptions"
+          [type]="'doughnut'">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Top Right: Analyse des Prix -->
+    <div class="chart-container">
+      <h4>Analyse des Prix</h4>
+      <div class="chart-wrapper">
+        <canvas baseChart
+          [data]="priceChartData"
+          [options]="priceChartOptions"
+          [type]="'bar'">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Bottom Left: Répartition par État -->
+    <div class="chart-container">
+      <h4>Répartition par État</h4>
+      <div class="chart-wrapper">
+        <canvas baseChart
+          [data]="etatChartData"
+          [options]="etatChartOptions"
+          [type]="'pie'">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Bottom Right: Statut de Visibilité -->
+    <div class="chart-container">
+      <h4>Statut de Visibilité</h4>
+      <div class="chart-wrapper">
+        <canvas baseChart
+          [data]="statusChartData"
+          [options]="statusChartOptions"
+          [type]="'doughnut'">
+        </canvas>
+      </div>
+    </div>
+
+  </div>
+</section>  }
+
+          <!-- Users Tab -->
+          @if (activeTab === 'users') {
+          <section class="users-section animate-fade">
+          <div class="section-header">
+            <h3 class="section-title">Gestion des Utilisateurs</h3>
+            <div class="search-bar">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" placeholder="Rechercher un utilisateur..." (input)="onUserSearch($event)">
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Utilisateur</th>
+                  <th>Email</th>
+                  <th>Date d'inscription</th>
+                  <th>Statut</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (user of filteredUsers$ | async; track user.id) {
+                  <tr>
+                    <td>
+                      <div class="user-cell">
+                        <div class="user-img">
+                          @if (user.photoUrl) {
+                            <img [src]="user.photoUrl" alt="Avatar">
+                          } @else {
+                            <span>{{ user.prenom[0] }}{{ user.nom[0] }}</span>
+                          }
+                        </div>
+                        <span class="user-name">{{ user.prenom }} {{ user.nom }}</span>
+                      </div>
+                    </td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ formatDate(user.dateInscription) }}</td>
+                    <td>
+                      <span class="badge" [class.badge-danger]="user.isBanned" [class.badge-success]="!user.isBanned">
+                        {{ user.isBanned ? 'Banni' : 'Actif' }}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <div class="action-buttons">
+                        <button class="btn-action btn-profile" (click)="viewProfile(user)">
+                          <i class="fa-solid fa-user"></i> Profil
+                        </button>
+                        <button class="btn-action" [class.btn-unban]="user.isBanned" [class.btn-ban]="!user.isBanned" (click)="toggleBan(user)">
+                          {{ user.isBanned ? 'Débannir' : 'Bannir' }}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" class="empty-msg">Aucun utilisateur trouvé.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          </section>
+
+          <!-- User Profile Overlay -->
+          @if (selectedUser) {
+          <div class="profile-overlay animate-fade" (click)="closeProfile()">
+            <div class="profile-modal" (click)="$event.stopPropagation()">
+              <button class="close-modal" (click)="closeProfile()">&times;</button>
+
+              <div class="profile-header">
+                <div class="profile-img-large">
+                  @if (selectedUser.photoUrl) {
+                    <img [src]="selectedUser.photoUrl" alt="Avatar">
+                  } @else {
+                    <span>{{ selectedUser.prenom[0] }}{{ selectedUser.nom[0] }}</span>
+                  }
+                </div>
+                <div class="profile-info-main">
+                  <h2>{{ selectedUser.prenom }} {{ selectedUser.nom }}</h2>
+                  <p class="email">{{ selectedUser.email }}</p>
+                  <p class="joined">Membre depuis le {{ formatDate(selectedUser.dateInscription) }}</p>
+                </div>
+              </div>
+
+              <div class="profile-details-grid">
+                <div class="detail-item">
+                  <span class="label">Téléphone</span>
+                  <span class="value">{{ selectedUser.telephone || 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Emplacement</span>
+                  <span class="value">{{ selectedUser.emplacement || 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Statut</span>
+                  <span class="value badge" [class.badge-danger]="selectedUser.isBanned" [class.badge-success]="!selectedUser.isBanned">
+                    {{ selectedUser.isBanned ? 'Banni' : 'Actif' }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="user-listings mt-4">
+                <h3>Annonces de l'utilisateur</h3>
+                <div class="mini-product-grid">
+                  @for (prod of userProducts$ | async; track prod.id) {
+                    <div class="mini-product-card">
+                      <img [src]="prod.imageUrls[0] || 'assets/placeholder.png'" alt="Img">
+                      <div class="mini-info">
+                        <span class="title">{{ prod.titre }}</span>
+                        <span class="price">{{ prod.prix }} TND</span>
+                      </div>
+                    </div>
+                  } @empty {
+                    <p class="empty-msg">Aucune annonce trouvée pour cet utilisateur.</p>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+          }
+          }
+      <!-- Products Tab -->
+      @if (activeTab === 'products') {
+        <section class="products-section animate-fade">
+          <div class="section-header">
+            <h3 class="section-title">Catalogue des Produits</h3>
+            <div class="search-bar">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" placeholder="Rechercher un produit..." (input)="onProductSearch($event)">
+            </div>
+          </div>
+
+          <!-- Product Grid -->
+          <div class="product-grid">
+            @for (product of filteredProducts$ | async; track product.id) {
+              <div class="product-card">
+                <div class="product-img-wrapper">
+                  <img [src]="product.imageUrls[0] || 'assets/placeholder.png'" alt="Img">
+                  <span class="category-badge">{{ product.categorie }}</span>
+                </div>
+                <div class="product-details">
+                  <h4 class="product-title">{{ product.titre }}</h4>
+                  <div class="product-meta">
+                    <span class="price">{{ product.prix }} TND</span>
+                    <span class="favorites">
+                      <i class="fa-solid fa-heart"></i> {{ product.favorisCount || 0 }}
+                    </span>
+                  </div>
+                  <div class="seller-info">
+                    <i class="fa-solid fa-user"></i> {{ product.nomVendeur }}
+                  </div>
+                  <div class="product-actions">
+                    <span class="date">{{ formatDate(product.dateCreation) }}</span>
+                    <button class="btn-icon-delete" (click)="deleteProduct(product.id)" title="Supprimer">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-msg">Aucun produit trouvé.</div>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- Reports Tab -->
+      @if (activeTab === 'reports') {
+        <section class="reports-section animate-fade">
+          <h3 class="section-title">Produits Signalés</h3>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Produit</th>
+                  <th>Signalé par</th>
+                  <th>Date</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (signal of signals$ | async; track signal.id) {
+                  <tr>
+                    <td>
+                      @if (signal.produit) {
+                        <div class="product-cell">
+                          <img [src]="signal.produit.imageUrls[0]" alt="Img" class="prod-thumb">
+                          <span>{{ signal.produit.titre }}</span>
+                        </div>
+                      } @else {
+                        <span class="text-muted">Produit déjà supprimé</span>
+                      }
+                    </td>
+                    <td>
+                      @if (signal.user) {
+                        {{ signal.user.prenom }} {{ signal.user.nom }}
+                      } @else {
+                        <span class="text-muted">Utilisateur inconnu</span>
+                      }
+                    </td>
+                    <td>{{ formatDate(signal.dateCreation) }}</td>
+                    <td class="text-right">
+                      @if (signal.produit) {
+                        <button class="btn-action btn-delete" (click)="deleteProduct(signal.produitId)">
+                          Supprimer l'annonce
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="4" class="empty-msg">Aucun signalement en attente.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+    </div>
+  </main>
+</div>
