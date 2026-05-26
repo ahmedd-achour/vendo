@@ -1,0 +1,45 @@
+/* Desktop: show app */
+.desktop-app {
+  display: block;
+}
+
+.mobile-block {
+  display: none;
+}
+
+/* Tablet & Phone */
+@media (max-width: 1024px) {
+  .desktop-app {
+    display: none;
+  }
+
+  .mobile-block {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #f8f9fa;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .mobile-content {
+    max-width: 420px;
+  }
+
+  .mobile-content h1 {
+    margin-bottom: 12px;
+    font-size: 2rem;
+    font-weight: 700;
+  }
+
+  .mobile-content p {
+    margin: 0;
+    font-size: 1rem;
+    color: #666;
+    line-height: 1.6;
+  }
+}
