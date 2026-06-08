@@ -1,13 +1,15 @@
-<div class="mobile-block">
-  <div class="mobile-content">
-    <h1>Desktop Required</h1>
-    <p>
-      This application is currently available only on desktop devices.
-      Please access it from a computer.
-    </p>
+@if (!isIntro) {
+  <div class="mobile-block">
+    <div class="mobile-content">
+      <h1>Desktop Required</h1>
+      <p>
+        This application is currently available only on desktop devices.
+        Please access it from a computer.
+      </p>
+    </div>
   </div>
-</div>
+}
 
-<div class="desktop-app">
+<div [class.desktop-app]="!isIntro">
   <router-outlet />
 </div>
